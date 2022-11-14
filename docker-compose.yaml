@@ -3,17 +3,19 @@ services:
   db:
     image: postgres
     restart: always
+    container_name: futebol_database
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
     volumes:
-      - ./.db:/var/lib/postgresql/data
+      - ./db:/data/postgres
     networks:
       - postgres-compose-network
   pgadmin:
     image: dpage/pgadmin4
+    container_name: futebol_pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=marcello.santos@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=pgadmin
@@ -27,3 +29,6 @@ services:
 networks:
   postgres-compose-network:
     driver: bridge
+
+volumes:
+  db:

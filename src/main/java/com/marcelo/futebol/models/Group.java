@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity(name="groups")
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Group {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,10 +31,13 @@ public class Group {
   @Column(nullable = false)
   private double monthlyFee;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_id")
   private Player owner;
 
-  @OneToMany(mappedBy = "group")
-  private List<GroupPlayer> groupPlayers;
+  @ManyToMany
+  @JoinTable(name="group_players",
+    joinColumns = @JoinColumn(name="group_id"),
+    inverseJoinColumns = @JoinColumn(name="player_id"))
+  private List<Player> players;
 }

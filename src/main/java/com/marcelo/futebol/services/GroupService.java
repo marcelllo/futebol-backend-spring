@@ -3,12 +3,12 @@ package com.marcelo.futebol.services;
 import com.marcelo.futebol.dto.GroupDTO;
 import com.marcelo.futebol.exceptions.ApiRequestException;
 import com.marcelo.futebol.models.Group;
-import com.marcelo.futebol.models.GroupPlayer;
 import com.marcelo.futebol.models.Player;
-import com.marcelo.futebol.repositories.GroupPlayerRepository;
 import com.marcelo.futebol.repositories.GroupRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -17,12 +17,8 @@ public class GroupService {
     private GroupRepository groupRepository;
     private PlayerService playerService;
 
-    private GroupPlayerRepository groupPlayerRepository;
-
-    public GroupService(GroupRepository groupRepository, PlayerService playerService, GroupPlayerRepository groupPlayerRepository) {
+    public GroupService(GroupRepository groupRepository) {
         this.groupRepository = groupRepository;
-        this.playerService = playerService;
-        this.groupPlayerRepository = groupPlayerRepository;
     }
 
     public Iterable<Group> findAll() {
@@ -50,19 +46,16 @@ public class GroupService {
         UUID hash = UUID.randomUUID();
 
         Group group = new Group();
-        group.setName(groupDTO.getName());
-        group.setMonthlyFee(groupDTO.getMonthlyFee());
-        group.setOwner(player);
+        BeanUtils.copyProperties(groupDTO, group);
+
         group.setHash(hash.toString());
-        group.setFieldType(groupDTO.getFieldType());
+        group.setOwner(player);
 
-        Group createdGroup = groupRepository.save(group);
+        return groupRepository.save(group);
+    }
 
-        GroupPlayer groupPlayer = new GroupPlayer(0L, player, group);
-
-        groupPlayerRepository.save(groupPlayer);
-
-        return createdGroup;
+    public List<Group> findAllByPlayerId(Long playerId) {
+        return groupRepository.findAllByOwner(playerId);
     }
 
 }
